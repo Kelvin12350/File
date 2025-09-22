@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>MEGA UNLIMITED SPACE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007aff;
+            --primary-hover: #005bb5;
+            --background-color: #f0f2f5;
+            --card-background: #ffffff;
+            --text-color: #1c1c1e;
+            --subtle-text: #8e8e93;
+            --border-color: #e5e5ea;
+            --danger-color: #ff3b30;
+            --warning-color: #ff9500;
+        }
+
+        /* --- Base & Layout --- */
+        html, body {
+            height: 100%;
+            margin: 0;
+            overscroll-behavior-y: contain; /* Prevents pull-to-refresh */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .hidden { display: none !important; }
+
+        /* --- Phone Screen Wrapper --- */
+        .phone-wrapper {
+            width: 100%;
+            height: 100%;
+            max-width: 420px;
+            max-height: 880px;
+            background: var(--card-background);
+            box-shadow: 0 10px 50px rgba(0,0,0,0.15);
+            border-radius: 30px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- Authentication Screen --- */
+        #auth-screen {
+            padding: 3rem 2rem;
+            justify-content: center;
+        }
+        #auth-screen h1 { text-align: center; font-size: 2rem; margin-top: 0; }
+        #auth-screen form { display: flex; flex-direction: column; gap: 1rem; }
+        #auth-screen input { padding: 1rem; border: 1px solid var(--border-color); border-radius: 12px; font-size: 1rem; -webkit-appearance: none; }
+        #auth-screen button { padding: 1rem; border: none; background-color: var(--primary-color); color: white; border-radius: 12px; cursor: pointer; font-size: 1.1rem; font-weight: 600; }
+        .toggle-link { text-align: center; margin-top: 1.5rem; color: var(--primary-color); cursor: pointer; }
+        .security-note { font-size: 0.8rem; color: var(--subtle-text); text-align: center; margin-top: 2rem; }
+        
+        /* --- Main App Screen --- */
+        #app-header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            background: #fdfdfd;
+        }
+        #app-header h1 { margin: 0; font-size: 1.5rem; }
+        #logout-button { background: none; border: none; color: var(--danger-color); font-size: 1rem; cursor: pointer; font-weight: 500;}
+
+        #app-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        /* --- File Upload Area --- */
+        .upload-area {
+            background: #f8f8fa;
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .upload-area input[type="file"] { display: none; }
+        .upload-label {
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            padding: 0.8rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            display: block;
+            margin-bottom: 1rem;
+        }
+        #file-name-display { color: var(--subtle-text); font-style: italic; margin-bottom: 1rem; }
+        .upload-actions button {
+            flex-grow: 1; padding: 0.8rem; border-radius: 10px; border: none; color: white; font-weight: 500; cursor: pointer;
+        }
+        #save-draft-btn { background-color: var(--warning-color); }
+        #upload-now-btn { background-color: var(--primary-color); }
+        .upload-actions { display: flex; gap: 0.5rem; }
+
+        /* --- File List --- */
+        .file-list { list-style: none; padding: 0; margin: 0; }
+        .file-list li {
+            background: var(--card-background);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .file-icon { flex-shrink: 0; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; }
+        .file-icon svg { width: 28px; height: 28px; color: var(--primary-color); }
+        .file-details { flex-grow: 1; overflow: hidden; }
+        .file-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-size { font-size: 0.8rem; color: var(--subtle-text); }
+        .file-actions { display: flex; gap: 0.5rem; }
+        .finalize-btn { padding: 0.5rem 0.8rem; font-size: 0.8rem; background: #28a745; color: white; border:none; border-radius: 8px; cursor: pointer; }
+
+        /* --- Bottom Navigation --- */
+        #bottom-nav {
+            display: flex;
+            border-top: 1px solid var(--border-color);
+            background: #fdfdfd;
+        }
+        .nav-item {
+            flex-grow: 1;
+            text-align: center;
+            padding: 0.8rem 0;
+            cursor: pointer;
+            color: var(--subtle-text);
+            border-top: 3px solid transparent;
+        }
+        .nav-item.active {
+            color: var(--primary-color);
+            border-top-color: var(--primary-color);
+        }
+        .nav-item svg { width: 24px; height: 24px; }
+
+        /* --- Message & Modal --- */
+        .message-area { text-align: center; padding: 0.8rem; border-radius: 8px; margin: 1rem 0; font-size: 0.9rem; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+
+        #preview-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
+        .modal-content { height: 100%; display: flex; flex-direction: column; }
+        .modal-header { padding: 1rem; text-align: right; }
+        .modal-close { font-size: 2rem; color: white; background: none; border: none; cursor: pointer; }
+        .preview-area { flex-grow: 1; display: flex; justify-content: center; align-items: center; padding: 1rem; }
+        .preview-area img, .preview-area video { max-width: 100%; max-height: 100%; border-radius: 8px; }
+
+    </style>
+</head>
+<body>
+
+    <div class="phone-wrapper">
+        <!-- Authentication Screen -->
+        <div id="auth-screen" class="screen">
+            <form id="login-form">
+                <h1>Welcome Back</h1>
+                <input type="text" id="login-username" placeholder="Username" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <button type="submit">Login</button>
+                <p class="toggle-link" onclick="toggleAuthForms()">Create an account</p>
+            </form>
+            <form id="signup-form" class="hidden">
+                <h1>Create Account</h1>
+                <input type="text" id="signup-username" placeholder="Username" required>
+                <input type="password" id="signup-password" placeholder="Password" required>
+                <button type="submit">Sign Up</button>
+                <p class="toggle-link" onclick="toggleAuthForms()">Already have an account?</p>
+            </form>
+            <div id="auth-message" class="message-area hidden"></div>
+            <p class="security-note">Your data is stored only on this device. Do not create a new account or you lose the old one.</p>
+        </div>
+
+        <!-- Main App Screen -->
+        <div id="app-screen" class="screen hidden">
+            <header id="app-header">
+                <h1 id="header-title">MEGA</h1>
+                <button id="logout-button">Logout</button>
+            </header>
+            <main id="app-content">
+                <!-- Upload Area (Only on Files tab) -->
+                <div id="upload-wrapper">
+                    <div class="upload-area">
+                        <label for="file-input" class="upload-label">Choose a File</label>
+                        <input type="file" id="file-input">
+                        <div id="file-name-display">No file selected</div>
+                        <div class="upload-actions hidden" id="actions-panel">
+                            <button id="save-draft-btn">Save for Later</button>
+                            <button id="upload-now-btn">Upload Now</button>
+                        </div>
+                    </div>
+                    <div id="app-message" class="message-area hidden"></div>
+                </div>
+
+                <!-- File/Draft List -->
+                <ul class="file-list" id="file-list-area"></ul>
+            </main>
+            <nav id="bottom-nav">
+                <div class="nav-item active" data-view="files">
+                    <svg fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h5.158a1 1 0 01.707.293l4.842 4.842a1 1 0 01.293.707V17a1 1 0 01-1 1H3a1 1 0 01-1-1V3z"></path></svg>
+                </div>
+                <div class="nav-item" data-view="drafts">
+                    <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 5a1 1 0 112 0v4h.293a1 1 0 01.707 1.707l-2.5 2.5a1 1 0 01-1.414 0l-2.5-2.5A1 1 0 016.707 9H7V5z" clip-rule="evenodd"></path></svg>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="preview-modal" class="hidden">
+        <div class="modal-content">
+            <div class="modal-header"><button class="modal-close" onclick="closePreview()">&times;</button></div>
+            <div class="preview-area" id="preview-area"></div>
+        </div>
+    </div>
+    
+    <script>
+        // --- App State & DB Config ---
+        let db;
+        let currentUser = null;
+        let currentView = 'files'; // 'files' or 'drafts'
+        let selectedFile = null;
+        const DB_NAME = 'MobileHubDB_v1';
+        const STORES = { USERS: 'users', DOCS: 'documents', DRAFTS: 'drafts' };
+
+        // --- ICONS ---
+        const ICONS = {
+            file: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0011.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>`,
+            image: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>`,
+            video: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>`,
+        };
+
+        // --- UI Element References ---
+        const authScreen = document.getElementById('auth-screen');
+        const appScreen = document.getElementById('app-screen');
+        const fileInput = document.getElementById('file-input');
+
+        // --- Core Functions ---
+        function initDB() {
+            const request = indexedDB.open(DB_NAME, 1);
+            request.onerror = (e) => console.error("DB Error:", e.target.errorCode);
+            request.onsuccess = (e) => {
+                db = e.target.result;
+                checkSession();
+            };
+            request.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                Object.values(STORES).forEach(storeName => {
+                    if (!db.objectStoreNames.contains(storeName)) {
+                        const store = db.createObjectStore(storeName, { keyPath: 'id' });
+                        store.createIndex('owner', 'owner', { unique: false });
+                    }
+                });
+            };
+        }
+
+        function checkSession() {
+            currentUser = localStorage.getItem('loggedInUser');
+            updateView();
+        }
+
+        // --- View & UI Logic ---
+        function updateView() {
+            if (currentUser) {
+                authScreen.classList.add('hidden');
+                appScreen.classList.remove('hidden');
+                switchTabView(currentView);
+            } else {
+                authScreen.classList.remove('hidden');
+                appScreen.classList.add('hidden');
+            }
+        }
+        
+        function switchTabView(view) {
+            currentView = view;
+            document.querySelector('#bottom-nav .active').classList.remove('active');
+            document.querySelector(`.nav-item[data-view="${view}"]`).classList.add('active');
+            
+            const headerTitle = document.getElementById('header-title');
+            const uploadWrapper = document.getElementById('upload-wrapper');
+
+            if (view === 'files') {
+                headerTitle.textContent = 'My Files';
+                uploadWrapper.classList.remove('hidden');
+                displayItems(STORES.DOCS);
+            } else {
+                headerTitle.textContent = 'Drafts';
+                uploadWrapper.classList.add('hidden');
+                displayItems(STORES.DRAFTS);
+            }
+        }
+
+        function displayItems(storeName) {
+            const listArea = document.getElementById('file-list-area');
+            listArea.innerHTML = '';
+            if (!db || !currentUser) return;
+
+            const tx = db.transaction(storeName, 'readonly');
+            const index = tx.objectStore(storeName).index('owner');
+            const request = index.getAll(currentUser);
+
+            request.onsuccess = () => {
+                const items = request.result;
+                if (items.length === 0) {
+                    listArea.innerHTML = `<li>No ${storeName} found.</li>`;
+                    return;
+                }
+                items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.dataset.id = item.id;
+                    li.dataset.store = storeName;
+                    
+                    let mimeType = item.type || '';
+                    let icon = mimeType.startsWith('image/') ? ICONS.image : (mimeType.startsWith('video/') ? ICONS.video : ICONS.file);
+
+                    li.innerHTML = `
+                        <div class="file-icon">${icon}</div>
+                        <div class="file-details">
+                            <div class="file-name">${item.name}</div>
+                            <div class="file-size">${(item.size / 1024).toFixed(1)} KB</div>
+                        </div>
+                        ${storeName === STORES.DRAFTS ? '<div class="file-actions"><button class="finalize-btn">Upload</button></div>' : ''}
+                    `;
+                    listArea.appendChild(li);
+                });
+            };
+        }
+        
+        // --- Authentication ---
+        // (handleLogin, handleSignup, handleLogout, toggleAuthForms are similar to previous versions, adapted for localStorage)
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            const tx = db.transaction(STORES.USERS, 'readonly');
+            const request = tx.objectStore(STORES.USERS).get(`${username}_user`);
+            
+            request.onsuccess = () => {
+                const user = request.result;
+                if (user && user.password === password) {
+                    localStorage.setItem('loggedInUser', username);
+                    currentUser = username;
+                    updateView();
+                    e.target.reset();
+                } else {
+                    showMessage('auth-message', 'Invalid credentials', false);
+                }
+            };
+        }
+
+        function handleSignup(e) {
+            e.preventDefault();
+            const username = document.getElementById('signup-username').value.trim();
+            const password = document.getElementById('signup-password').value;
+            const userId = `${username}_user`;
+
+            const tx = db.transaction(STORES.USERS, 'readwrite');
+            const store = tx.objectStore(STORES.USERS);
+            const request = store.get(userId);
+
+            request.onsuccess = () => {
+                if (request.result) {
+                    showMessage('auth-message', 'Username taken', false);
+                } else {
+                    store.add({ id: userId, username, password });
+                    showMessage('auth-message', 'Account created! Please log in.', true);
+                    toggleAuthForms();
+                    e.target.reset();
+                }
+            };
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('loggedInUser');
+            currentUser = null;
+            updateView();
+        }
+
+        function toggleAuthForms() {
+            document.getElementById('login-form').classList.toggle('hidden');
+            document.getElementById('signup-form').classList.toggle('hidden');
+            hideMessage('auth-message');
+        }
+
+        // --- File & Draft Management ---
+        function saveItem(storeName) {
+            if (!selectedFile) {
+                showMessage('app-message', 'Please select a file first.', false);
+                return;
+            }
+            const itemId = `${currentUser}_${Date.now()}_${selectedFile.name}`;
+            const itemRecord = { id: itemId, owner: currentUser, name: selectedFile.name, type: selectedFile.type, size: selectedFile.size, content: selectedFile };
+            
+            const tx = db.transaction(storeName, 'readwrite');
+            tx.objectStore(storeName).put(itemRecord);
+            tx.oncomplete = () => {
+                const action = storeName === STORES.DRAFTS ? 'saved to drafts' : 'uploaded';
+                showMessage('app-message', `File ${action}.`, true);
+                resetUploadArea();
+                if (storeName === STORES.DOCS) displayItems(STORES.DOCS);
+            };
+            tx.onerror = () => showMessage('app-message', 'Error saving file.', false);
+        }
+
+        function finalizeDraft(itemId) {
+            const tx = db.transaction([STORES.DRAFTS, STORES.DOCS], 'readwrite');
+            const draftsStore = tx.objectStore(STORES.DRAFTS);
+            const docsStore = tx.objectStore(STORES.DOCS);
+            
+            const request = draftsStore.get(itemId);
+            request.onsuccess = () => {
+                const draft = request.result;
+                if (draft) {
+                    docsStore.put(draft);
+                    draftsStore.delete(itemId);
+                }
+            };
+            tx.oncomplete = () => {
+                showMessage('app-message', 'Draft uploaded successfully!', true);
+                displayItems(STORES.DRAFTS);
+            };
+        }
+        
+        function showPreview(itemId, storeName) {
+            const tx = db.transaction(storeName, 'readonly');
+            const request = tx.objectStore(storeName).get(itemId);
+            request.onsuccess = () => {
+                const item = request.result;
+                if (!item) return;
+
+                const previewArea = document.getElementById('preview-area');
+                previewArea.innerHTML = '';
+                const url = URL.createObjectURL(item.content);
+                let el;
+
+                if (item.type.startsWith('image/')) {
+                    el = document.createElement('img');
+                } else if (item.type.startsWith('video/')) {
+                    el = document.createElement('video');
+                    el.controls = true;
+                } else {
+                    previewArea.innerHTML = `<p style="color:white;">Preview not available. <a href="${url}" download="${item.name}">Download</a></p>`;
+                }
+
+                if (el) {
+                    el.src = url;
+                    previewArea.appendChild(el);
+                }
+                document.getElementById('preview-modal').classList.remove('hidden');
+            };
+        }
+        
+        function closePreview() {
+            document.getElementById('preview-modal').classList.add('hidden');
+            document.getElementById('preview-area').innerHTML = ''; // Cleans up object URLs
+        }
+
+        function resetUploadArea() {
+            fileInput.value = '';
+            selectedFile = null;
+            document.getElementById('file-name-display').textContent = 'No file selected';
+            document.getElementById('actions-panel').classList.add('hidden');
+        }
+
+        function showMessage(elementId, text, isSuccess) {
+            const el = document.getElementById(elementId);
+            el.textContent = text;
+            el.className = `message-area ${isSuccess ? 'success' : 'error'}`;
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 3000);
+        }
+        function hideMessage(elementId) { document.getElementById(elementId).classList.add('hidden'); }
+
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', initDB);
+        
+        // Auth
+        document.getElementById('login-form').addEventListener('submit', handleLogin);
+        document.getElementById('signup-form').addEventListener('submit', handleSignup);
+        document.getElementById('logout-button').addEventListener('click', handleLogout);
+
+        // Nav
+        document.getElementById('bottom-nav').addEventListener('click', (e) => {
+            const navItem = e.target.closest('.nav-item');
+            if (navItem) switchTabView(navItem.dataset.view);
+        });
+
+        // Upload
+        fileInput.addEventListener('change', (e) => {
+            selectedFile = e.target.files[0];
+            if (selectedFile) {
+                document.getElementById('file-name-display').textContent = selectedFile.name;
+                document.getElementById('actions-panel').classList.remove('hidden');
+            } else {
+                resetUploadArea();
+            }
+        });
+        document.getElementById('save-draft-btn').addEventListener('click', () => saveItem(STORES.DRAFTS));
+        document.getElementById('upload-now-btn').addEventListener('click', () => saveItem(STORES.DOCS));
+
+        // File/Draft List Actions
+        document.getElementById('file-list-area').addEventListener('click', (e) => {
+            const finalizeBtn = e.target.closest('.finalize-btn');
+            const fileItem = e.target.closest('li');
+
+            if (finalizeBtn) {
+                e.stopPropagation();
+                finalizeDraft(fileItem.dataset.id);
+            } else if (fileItem) {
+                showPreview(fileItem.dataset.id, fileItem.dataset.store);
+            }
+        });
+
+    </script>
+</body>
+</html>
+
